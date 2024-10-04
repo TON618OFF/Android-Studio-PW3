@@ -15,16 +15,19 @@
         app:layout_constraintTop_toTopOf="parent"
         android:src="@drawable/moon"
         android:background="@null"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="10dp"
         style="@style/Img"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Крестики-Нолики!"
+        android:text="X and O"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="20dp"
         android:textSize="25sp"
-        android:textColor="@color/darkviolet"/>
+        android:textColor="@color/darkorange"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
