@@ -1,7 +1,10 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.Practice3" parent="Theme.Material3.DayNight.NoActionBar">
-
+        <item name="colorPrimary">@color/yellow</item>
+        <item name="colorPrimaryDark">@color/darkorange</item>
+        <item name="android:textColorPrimary">@color/royalblue</item>
+        <item name="android:navigationBarColor">@color/darkviolet</item>
     </style>
 
     <style name="Theme.Practice3" parent="Base.Theme.Practice3" />

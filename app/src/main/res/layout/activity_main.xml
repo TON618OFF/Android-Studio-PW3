@@ -7,6 +7,18 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <TextView
+        android:id="@+id/statsView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Крестики: 0 | Нолики: 0 | Ничья: 0"
+        android:textSize="18sp"
+        android:textColor="@color/darkorange"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="150dp"/>
+
     <ImageButton
         android:id="@+id/imagebtn"
         android:layout_width="50dp"
@@ -16,18 +28,151 @@
         android:src="@drawable/moon"
         android:background="@null"
         android:layout_marginTop="10dp"
-        android:layout_marginRight="10dp"
-        style="@style/Img"/>
+        android:layout_marginRight="10dp"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="X and O"
+        android:text="Крестики и Нолики"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="15dp"
         android:textSize="25sp"
         android:textColor="@color/darkorange"/>
+
+    <!-- Игровое поле 3x3 -->
+    <GridLayout
+        android:id="@+id/gameGrid"
+        android:layout_width="350dp"
+        android:layout_height="350dp"
+        android:layout_marginTop="-100dp"
+        android:alignmentMode="alignMargins"
+        android:columnCount="3"
+        android:rowCount="3"
+        android:padding="16dp"
+        app:layout_constraintTop_toBottomOf="@id/statsView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/restartBtn">
+
+        <!-- Кнопки для клеток игрового поля -->
+        <Button
+            android:layout_marginRight="5dp"
+            android:layout_marginBottom="5dp"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:background="@android:color/white"
+            android:textSize="36sp"
+            android:textColor="@android:color/black"
+            android:text="" />
+
+        <Button
+            android:layout_marginRight="5dp"
+            android:layout_marginBottom="5dp"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:background="@android:color/white"
+            android:textSize="36sp"
+            android:textColor="@android:color/black"
+            android:text="" />
+
+        <Button
+            android:layout_marginBottom="5dp"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:background="@android:color/white"
+            android:textSize="36sp"
+            android:textColor="@android:color/black"
+            android:text="" />
+
+        <!-- Следующие 6 кнопок аналогичны вышеуказанным -->
+
+        <Button
+            android:layout_marginBottom="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:background="@android:color/white"
+            android:textSize="36sp"
+            android:textColor="@android:color/black"
+            android:text="" />
+
+        <Button
+            android:layout_marginBottom="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:background="@android:color/white"
+            android:textSize="36sp"
+            android:textColor="@android:color/black"
+            android:text="" />
+
+        <Button
+            android:layout_marginBottom="5dp"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:background="@android:color/white"
+            android:textSize="36sp"
+            android:textColor="@android:color/black"
+            android:text="" />
+
+        <Button
+            android:layout_marginRight="5dp"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:background="@android:color/white"
+            android:textSize="36sp"
+            android:textColor="@android:color/black"
+            android:text="" />
+
+        <Button
+            android:layout_marginRight="5dp"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:background="@android:color/white"
+            android:textSize="36sp"
+            android:textColor="@android:color/black"
+            android:text="" />
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:background="@android:color/white"
+            android:textSize="36sp"
+            android:textColor="@android:color/black"
+            android:text="" />
+    </GridLayout>
+
+    <!-- Кнопка для перезапуска игры -->
+    <Button
+        android:id="@+id/restartBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="Начать заново"
+        android:textColor="@color/black"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
