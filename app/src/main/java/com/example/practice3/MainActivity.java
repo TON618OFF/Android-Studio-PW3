@@ -1,16 +1,15 @@
 package com.example.practice3;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
-
 import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,25 +17,28 @@ import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
-    private SharedPreferences themeSettings;
-    private SharedPreferences.Editor settingsEditor;
-    private ImageButton imageTheme;
-    private boolean playerXTurn = true; // Игрок всегда играет за X
-    private boolean gameOver = false;   // Флаг окончания игры
+    SharedPreferences themeSettings;
+    SharedPreferences.Editor settingsEditor;
+    ImageButton imageTheme;
+
+    private boolean playerXTurn = true;
+    private boolean gameOver = false;
+    private boolean isPlayWithBot = false;
     private Random random = new Random();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Настройки темы
         themeSettings = getSharedPreferences("SETTINGS", MODE_PRIVATE);
         if (!themeSettings.contains("MODE_NIGHT_ON")) {
             settingsEditor = themeSettings.edit();
             settingsEditor.putBoolean("MODE_NIGHT_ON", false);
             settingsEditor.apply();
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        } else {
+            setCurrentTheme();
         }
-        setCurrentTheme();
 
         setContentView(R.layout.activity_main);
 
@@ -44,130 +46,157 @@ public class MainActivity extends AppCompatActivity {
         updateImageButton();
         imageTheme.setOnClickListener(v -> toggleTheme());
 
-        initializeGameGrid();
-
-        Button restartBtn = findViewById(R.id.restartBtn);
-        restartBtn.setOnClickListener(v -> resetGame());
-
-        loadStats(); // Загрузка статистики при старте
-    }
-
-    // Логика смены темы
-    private void toggleTheme() {
-        boolean nightMode = themeSettings.getBoolean("MODE_NIGHT_ON", false);
-        AppCompatDelegate.setDefaultNightMode(nightMode ? AppCompatDelegate.MODE_NIGHT_NO : AppCompatDelegate.MODE_NIGHT_YES);
-        settingsEditor = themeSettings.edit();
-        settingsEditor.putBoolean("MODE_NIGHT_ON", !nightMode);
-        settingsEditor.apply();
-        Toast.makeText(MainActivity.this, nightMode ? "Тёмная тема отключена" : "Тёмная тема включена", Toast.LENGTH_SHORT).show();
-        updateImageButton();
-    }
-
-    // Обновление иконки кнопки смены темы
-    private void updateImageButton() {
-        imageTheme.setImageResource(themeSettings.getBoolean("MODE_NIGHT_ON", false) ? R.drawable.sun : R.drawable.moon);
-    }
-
-    // Устанавливаем текущую тему при запуске приложения
-    private void setCurrentTheme() {
-        AppCompatDelegate.setDefaultNightMode(themeSettings.getBoolean("MODE_NIGHT_ON", false) ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
-    }
-
-    // Инициализация игрового поля
-    private void initializeGameGrid() {
         GridLayout gridLayout = findViewById(R.id.gameGrid);
         for (int i = 0; i < gridLayout.getChildCount(); i++) {
             Button button = (Button) gridLayout.getChildAt(i);
             int finalI = i;
             button.setOnClickListener(v -> makeMove(button, finalI));
         }
+
+        Button restartBtn = findViewById(R.id.restartBtn);
+        restartBtn.setOnClickListener(v -> resetGame());
+
+        Button playWithBotBtn = findViewById(R.id.playWithBotBtn);
+        Button playWithFriendBtn = findViewById(R.id.playWithFriendBtn);
+
+        playWithBotBtn.setOnClickListener(v -> {
+            isPlayWithBot = true;
+            resetGame();
+            Toast.makeText(this, "Режим: Игра с ботом", Toast.LENGTH_SHORT).show();
+        });
+
+        playWithFriendBtn.setOnClickListener(v -> {
+            isPlayWithBot = false;
+            resetGame();
+            Toast.makeText(this, "Режим: Игра на двоих", Toast.LENGTH_SHORT).show();
+        });
+
+        loadStats();
     }
 
-    // Ход игрока
+    private void toggleTheme() {
+        if (themeSettings.getBoolean("MODE_NIGHT_ON", false)) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+            settingsEditor = themeSettings.edit();
+            settingsEditor.putBoolean("MODE_NIGHT_ON", false);
+            settingsEditor.apply();
+            Toast.makeText(MainActivity.this, "Тёмная тема отключена", Toast.LENGTH_SHORT).show();
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            settingsEditor = themeSettings.edit();
+            settingsEditor.putBoolean("MODE_NIGHT_ON", true);
+            settingsEditor.apply();
+            Toast.makeText(MainActivity.this, "Тёмная тема включена", Toast.LENGTH_SHORT).show();
+        }
+        updateImageButton();
+    }
+
+    private void updateImageButton() {
+        if (themeSettings.getBoolean("MODE_NIGHT_ON", false)) {
+            imageTheme.setImageResource(R.drawable.sun);
+        } else {
+            imageTheme.setImageResource(R.drawable.moon);
+        }
+    }
+
+    private void setCurrentTheme() {
+        if (themeSettings.getBoolean("MODE_NIGHT_ON", false)) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        }
+    }
+
     private void makeMove(Button button, int index) {
         if (!button.getText().toString().isEmpty() || gameOver) return;
 
         button.setText(playerXTurn ? "X" : "O");
-        if (checkGameState()) return;
+
+        checkGameState();
+
 
         playerXTurn = !playerXTurn;
-        if (!gameOver && !playerXTurn) botMakeMove();
-    }
 
-    // Ход бота
-    private void botMakeMove() {
-        List<Button> availableButtons = getAvailableButtons();
-        if (!availableButtons.isEmpty()) {
-            availableButtons.get(random.nextInt(availableButtons.size())).setText("O");
-            checkGameState();
-            playerXTurn = true;
+        if (isPlayWithBot && !gameOver && !playerXTurn) {
+            botMakeMove();
         }
     }
 
-    // Получение списка доступных для хода кнопок
-    private List<Button> getAvailableButtons() {
+    private void botMakeMove() {
         GridLayout gridLayout = findViewById(R.id.gameGrid);
         List<Button> availableButtons = new ArrayList<>();
+
         for (int i = 0; i < gridLayout.getChildCount(); i++) {
             Button button = (Button) gridLayout.getChildAt(i);
-            if (button.getText().toString().isEmpty()) availableButtons.add(button);
+            if (button.getText().toString().isEmpty()) {
+                availableButtons.add(button);
+            }
         }
-        return availableButtons;
+
+        if (!availableButtons.isEmpty()) {
+            Button botButton = availableButtons.get(random.nextInt(availableButtons.size()));
+            botButton.setText("O");
+
+            checkGameState();
+            playerXTurn = !playerXTurn;
+        }
     }
 
-    // Проверка состояния игры
-    private boolean checkGameState() {
+    private void checkGameState() {
         String winner = checkForWinner();
+
         if (winner != null) {
-            endGame(winner.equals("X") ? "Крестики" : "Нолики");
+            Toast.makeText(this, "Победил " + winner, Toast.LENGTH_SHORT).show();
             saveStats(winner);
-            return true;
+            gameOver = true;
         } else if (checkForDraw()) {
-            endGame("Ничья");
-            saveStats("draw");
-            return true;
+            Toast.makeText(this, "Ничья", Toast.LENGTH_SHORT).show();
+            saveStats("Ничья");
+            gameOver = true;
         }
-        return false;
     }
 
-    // Проверка победителя
     private String checkForWinner() {
-        String[][] board = getBoard();
-        for (int i = 0; i < 3; i++) {
-            if (checkLine(board[i][0], board[i][1], board[i][2])) return board[i][0];
-            if (checkLine(board[0][i], board[1][i], board[2][i])) return board[0][i];
+        GridLayout gridLayout = findViewById(R.id.gameGrid);
+        String[][] field = new String[3][3];
+
+        for (int i = 0; i < 9; i++) {
+            Button button = (Button) gridLayout.getChildAt(i);
+            field[i / 3][i % 3] = button.getText().toString();
         }
-        if (checkLine(board[0][0], board[1][1], board[2][2]) || checkLine(board[0][2], board[1][1], board[2][0])) return board[1][1];
+
+        for (int i = 0; i < 3; i++) {
+            if (field[i][0].equals(field[i][1]) && field[i][1].equals(field[i][2]) && !field[i][0].isEmpty()) {
+                return field[i][0];
+            }
+
+            if (field[0][i].equals(field[1][i]) && field[1][i].equals(field[2][i]) && !field[0][i].isEmpty()) {
+                return field[0][i];
+            }
+        }
+
+        if (field[0][0].equals(field[1][1]) && field[1][1].equals(field[2][2]) && !field[0][0].isEmpty()) {
+            return field[0][0];
+        }
+
+        if (field[0][2].equals(field[1][1]) && field[1][1].equals(field[2][0]) && !field[0][2].isEmpty()) {
+            return field[0][2];
+        }
+
         return null;
     }
 
-    // Проверка, что все элементы линии равны и не пусты
-    private boolean checkLine(String a, String b, String c) {
-        return a.equals(b) && b.equals(c) && !a.isEmpty();
-    }
-
-    // Получение текущего состояния игрового поля
-    private String[][] getBoard() {
-        GridLayout gridLayout = findViewById(R.id.gameGrid);
-        String[][] board = new String[3][3];
-        for (int i = 0; i < gridLayout.getChildCount(); i++) {
-            board[i / 3][i % 3] = ((Button) gridLayout.getChildAt(i)).getText().toString();
-        }
-        return board;
-    }
-
-    // Проверка ничьей
     private boolean checkForDraw() {
-        return getAvailableButtons().isEmpty();
+        GridLayout gridLayout = findViewById(R.id.gameGrid);
+        for (int i = 0; i < gridLayout.getChildCount(); i++) {
+            Button button = (Button) gridLayout.getChildAt(i);
+            if (button.getText().toString().isEmpty()) {
+                return false;
+            }
+        }
+        return true;
     }
 
-    // Завершение игры
-    private void endGame(String result) {
-        Toast.makeText(this, "Результат: " + result, Toast.LENGTH_SHORT).show();
-        gameOver = true;
-    }
-
-    // Сброс игры
     private void resetGame() {
         GridLayout gridLayout = findViewById(R.id.gameGrid);
         for (int i = 0; i < gridLayout.getChildCount(); i++) {
@@ -178,25 +207,44 @@ public class MainActivity extends AppCompatActivity {
         playerXTurn = true;
     }
 
-    // Загрузка статистики
-    private void loadStats() {
-        SharedPreferences prefs = getSharedPreferences("TicTacToeStats", MODE_PRIVATE);
-        int xWins = prefs.getInt("xWins", 0);
-        int oWins = prefs.getInt("oWins", 0);
-        int draws = prefs.getInt("draws", 0);
-        ((TextView) findViewById(R.id.statsView)).setText("Крестики: " + xWins + " | Нолики: " + oWins + " | Ничья: " + draws);
-    }
+    private void saveStats(String result) {
+        SharedPreferences preferences = getSharedPreferences("stats", MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
 
-    // Сохранение статистики
-    private void saveStats(String winner) {
-        SharedPreferences prefs = getSharedPreferences("TicTacToeStats", MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
+        int xWins = preferences.getInt("XWins", 0);
+        int oWins = preferences.getInt("OWins", 0);
+        int draws = preferences.getInt("Draws", 0);
 
-        if (winner.equals("X")) editor.putInt("xWins", prefs.getInt("xWins", 0) + 1);
-        else if (winner.equals("O")) editor.putInt("oWins", prefs.getInt("oWins", 0) + 1);
-        else editor.putInt("draws", prefs.getInt("draws", 0) + 1);
+        if (result.equals("X")) {
+            editor.putInt("XWins", ++xWins);
+        } else if (result.equals("O")) {
+            editor.putInt("OWins", ++oWins);
+        } else {
+            editor.putInt("Draws", ++draws);
+        }
 
         editor.apply();
-        loadStats();
+        updateStats();
+    }
+
+    private void loadStats() {
+        SharedPreferences preferences = getSharedPreferences("stats", MODE_PRIVATE);
+        int xWins = preferences.getInt("XWins", 0);
+        int oWins = preferences.getInt("OWins", 0);
+        int draws = preferences.getInt("Draws", 0);
+
+        TextView statsView = findViewById(R.id.statsView);
+        statsView.setText("Крестики: " + xWins + " | Нолики: " + oWins + " | Ничья: " + draws);
+    }
+
+
+    private void updateStats() {
+        SharedPreferences preferences = getSharedPreferences("stats", MODE_PRIVATE);
+        int xWins = preferences.getInt("XWins", 0);
+        int oWins = preferences.getInt("OWins", 0);
+        int draws = preferences.getInt("Draws", 0);
+
+        TextView statsView = findViewById(R.id.statsView);
+        statsView.setText("Крестики: " + xWins + " | Нолики: " + oWins + " | Ничья: " + draws);
     }
 }

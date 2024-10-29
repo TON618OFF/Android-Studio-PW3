@@ -41,7 +41,6 @@
         android:textSize="25sp"
         android:textColor="@color/darkorange"/>
 
-    <!-- Игровое поле 3x3 -->
     <GridLayout
         android:id="@+id/gameGrid"
         android:layout_width="350dp"
@@ -56,7 +55,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/restartBtn">
 
-        <!-- Кнопки для клеток игрового поля -->
         <Button
             android:layout_marginRight="5dp"
             android:layout_marginBottom="5dp"
@@ -91,8 +89,6 @@
             android:textSize="36sp"
             android:textColor="@android:color/black"
             android:text="" />
-
-        <!-- Следующие 6 кнопок аналогичны вышеуказанным -->
 
         <Button
             android:layout_marginBottom="5dp"
@@ -162,7 +158,6 @@
             android:text="" />
     </GridLayout>
 
-    <!-- Кнопка для перезапуска игры -->
     <Button
         android:id="@+id/restartBtn"
         android:layout_width="wrap_content"
@@ -173,6 +168,34 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/playWithBotBtn"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginRight="175dp"
+        android:text="Играть с ботом"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/gameGrid" />
+
+    <Button
+        android:id="@+id/playWithFriendBtn"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginRight="20dp"
+        android:text="Играть вдвоём"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:textColor="@color/black"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/playWithBotBtn"
+        app:layout_constraintTop_toBottomOf="@+id/gameGrid" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
